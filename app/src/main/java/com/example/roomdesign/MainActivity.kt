@@ -4,12 +4,11 @@ import android.content.Context
 import android.graphics.drawable.Drawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.AttributeSet
-import android.util.Log
-import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.graphics.drawable.TransitionDrawable
+
 
 class MainActivity : AppCompatActivity() {
     var currentWallColor: String = "cream"
@@ -54,10 +53,15 @@ class MainActivity : AppCompatActivity() {
                 button.isEnabled = false
             }
             button.setOnClickListener {
+                val prevName = "${currentLight}_${currentWallColor}_${currentCarpet}"
                 currentLight = button.text.toString()
                 val newName = "${currentLight}_${currentWallColor}_${currentCarpet}"
-                Log.i(null, newName)
-                imageView.setImageDrawable(getDrawableByName(newName, this))
+
+                changeDrawableSmoothly(imageView,
+                    getDrawableByName(prevName, this),
+                    getDrawableByName(newName, this),
+                    500)
+
                 button.isEnabled = false
                 for (other in allLightButtons) {
                     if (button != other) {
@@ -82,6 +86,16 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+
+    fun changeDrawableSmoothly(imageView: ImageView, drawableFrom: Drawable, drawableTo: Drawable, durationMillis: Int) {
+        val layers = arrayOfNulls<Drawable>(2)
+        layers[0] = drawableFrom
+        layers[1] = drawableTo
+
+        val transitionDrawable = TransitionDrawable(layers)
+        imageView.setImageDrawable(transitionDrawable)
+        transitionDrawable.startTransition(durationMillis)
     }
 
     fun getDrawableByName(name: String, context: Context): Drawable {
